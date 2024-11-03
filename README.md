@@ -20,6 +20,12 @@ ollama pull llama3.1:8b
 ```
 This will download the model onto your machine and make it available with Ollama. To check whether it is running properly, type ```ollama run llama3.1:8b```. If everything works fine, you should be asked for a prompt/input to be send to the LLM in order to start the conversation with the chatbot.
 
+Since we want to use an Retrieval Augmented Generation (RAG) Model, we need to also install appropriate embeddings encoder for our LLM. There are various encoders (e.g. OpenAI Ada-002 etc.), but in this case we use the [nomic-embed-text](https://ollama.com/library/nomic-embed-text). It must be installed using Ollama by typing 
+```bash
+ollama pull nomic-embed-text
+```
+into the command line.
+
 ### Install the required Python packages for the proof on concept
 To run the POC, you need to set up the appropriate Python environment and install all packages necessary.
 
