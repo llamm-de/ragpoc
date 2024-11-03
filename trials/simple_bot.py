@@ -8,21 +8,33 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, MessagesState, StateGraph
 
 def main():
+    # Static variables
     CONTINUE_CONVERSATION = True
+    CONFIG = {"configurable": {"thread_id": "abc123"}}
 
     # Initialize Model
-#    workflow = StateGraph(state_schema=MessagesState)
+    workflow = StateGraph(state_schema=MessagesState)
     model = ChatOllama(model="llama3.1:latest")
+    def call_model(state:MessagesState):
+        response = model.invoke(state["messages"])
+        return {"messages": response}
+    # Define the (single) node in the graph
+    workflow.add_edge(START, "model")
+    workflow.add_node("model", call_model)
+    # Add memory
+    memory = MemorySaver()
+    app = workflow.compile(checkpointer=memory)
 
     # REP Loop
     while CONTINUE_CONVERSATION:
         prompt = input(">>> ")
-        response = model.invoke([HumanMessage(content=prompt)])
         if prompt == "/bye":
             print("Good bye!")
             CONTINUE_CONVERSATION = False
-        else:
-            print(response.content)
+            break
+        input_messages = [HumanMessage(content=prompt)]
+        response = app.invoke({"messages": input_messages}, CONFIG)
+        print(f"-> {response['messages'][-1].content}")
 
 if __name__ == "__main__":
     main()
